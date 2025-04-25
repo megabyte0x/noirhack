@@ -1,5 +1,23 @@
 # TruScore
 
+## TODO
+
+- [ ] Circuit
+  - [ ] Implement the merkle tree inclusion proof.
+  - [ ] Implement the signature verification.
+- [ ] Smart Contract
+  - [ ] Verifier contract
+  - [ ] NFT contract
+  - [ ] Merkle tree contract
+- [ ] Frontend
+  - [ ] Add a button to connect the wallet.
+  - [ ] Add an address in merkle tree.
+  - [ ] Generate the proof.
+  - [ ] Verify the proof.
+  - [ ] Mint the NFT.
+- [ ] Backend
+  - [ ] API to fetch the score.
+
 ## Overview
 
 TruScore is the privacy first reputation score generated using on-chain data of the user while keeping the user's identity private.
@@ -33,3 +51,13 @@ The flow of generating a reputation score is as follows:
 6. When a user request to update their onchain score, they will be requested to prove that they own **any one** of the linked wallet address(s).
 7. The zk proof will be generated using circuit build with Noir. The circuit will verify the merkle root and generate proof.
 8. The NFT will be minted after verification of the proof to the public wallet.
+
+## Workflow
+
+### Adding Address
+
+![Adding Address](./assets/1.png)
+
+### Generating Proof
+
+![Generating Proof](./assets/2.png)
