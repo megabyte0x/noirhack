@@ -9,3 +9,9 @@ export type InputFields = {
     nullifier: bigint;
     commitment: bigint;
 }
+
+export type MerkleProof = {
+    root: bigint;
+    pathIndices: number[];
+    siblings: bigint[];
+}

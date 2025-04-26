@@ -1,0 +1,8 @@
+{
+    "$schema": "https://openapi.vercel.sh/vercel.json",
+    "buildCommand": "next build",
+    "cleanUrls": true,
+    "devCommand": "next dev",
+    "framework": "nextjs",
+    "installCommand": "yarn install"
+}

@@ -1,6 +1,6 @@
 import type { TypedData, TypedDataDomain } from 'viem'
 import { hashTypedData } from 'viem'
-import type { Hex, LinkWalletMessage } from './types'
+import type { Hex } from 'viem'
 
 
 export const types = {

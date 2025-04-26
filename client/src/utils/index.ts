@@ -1,3 +1,5 @@
 export * from './extractInputFields'
 export * from './generateNullifier'
 export * from './generateCommitment'
+export * from './types'
+export * from './generateMerkleTree'
