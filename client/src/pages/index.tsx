@@ -1,18 +1,44 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AddressInput from '../components/addressInput';
 import styles from '../styles/Home.module.css';
 import { getInputFields } from '../utils';
+import type { InputFields } from '../utils';
 import type { Hex } from 'viem';
-import type { InputFields } from '../utils/types';
+import { generateMerkleRoot } from '../utils/generateMerkleTree';
+
 const Home: NextPage = () => {
   const [loading, setLoading] = useState(false);
   const [submittedAddress, setSubmittedAddress] = useState<Hex | undefined>(undefined);
   const [signature, setSignature] = useState<Hex | undefined>(undefined);
+  const [providerInfo, setProviderInfo] = useState<string>('');
 
-  const inputFields = (r: bigint, s: bigint, pubKeyX: bigint, pubKeyY: bigint, address: Hex, nullifier: bigint, commitment: bigint) => {
+  // Effect to log provider info
+  useEffect(() => {
+    const checkProviders = () => {
+      try {
+        const info = {
+          hasEthereumProperty: typeof window !== 'undefined' && 'ethereum' in window,
+          isMetaMaskAvailable: typeof window !== 'undefined' && window.ethereum?.isMetaMask,
+        };
+        setProviderInfo(JSON.stringify(info, null, 2));
+        console.log('Provider info:', info);
+      } catch (err) {
+        console.error('Error checking providers:', err);
+      }
+    };
+
+    // Only run after mounting
+    if (typeof window !== 'undefined') {
+      // Add a small delay to allow providers to initialize
+      setTimeout(checkProviders, 1000);
+    }
+  }, []);
+
+  const inputFields = (r: bigint, s: bigint, pubKeyX: bigint, pubKeyY: bigint, address: Hex, nullifier: bigint, commitment: bigint, root: bigint, pathIndices: number[], siblings: bigint[]) => {
+    console.log("--------------------------------")
     console.log("r", r)
     console.log("s", s)
     console.log("pubKeyX", pubKeyX)
@@ -20,6 +46,9 @@ const Home: NextPage = () => {
     console.log("address", address)
     console.log("nullifier", nullifier)
     console.log("commitment", commitment)
+    console.log("root", root)
+    console.log("pathIndices", pathIndices)
+    console.log("siblings", siblings)
   }
 
   const handleAddressSubmit = async (address: Hex, signature?: Hex, messageHash?: Hex) => {
@@ -42,13 +71,13 @@ const Home: NextPage = () => {
         const pubKeyY = data.pubKeyY;
         const nullifier = data.nullifier
         const commitment = data.commitment
-        inputFields(r, s, pubKeyX, pubKeyY, address, nullifier, commitment)
+        const { root, pathIndices, siblings } = generateMerkleRoot(commitment);
+        inputFields(r, s, pubKeyX, pubKeyY, address, nullifier, commitment, root, pathIndices, siblings)
       }
     } else {
       console.error('Signature or message hash is undefined');
     }
   };
-
 
   return (
     <div className={styles.container}>
@@ -71,6 +100,13 @@ const Home: NextPage = () => {
         <p className={styles.description}>
           A privacy-preserving on-chain reputation system
         </p>
+
+        {providerInfo && process.env.NEXT_PUBLIC_ENV === 'dev' && (
+          <div style={{ backgroundColor: '#f0f0f0', padding: '10px', borderRadius: '5px', marginBottom: '20px', maxWidth: '600px' }}>
+            <h3>Provider Info:</h3>
+            <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{providerInfo}</pre>
+          </div>
+        )}
 
         <div className={styles.card} style={{ width: '100%', maxWidth: '600px', marginBottom: '2rem' }}>
           <h2>Link Your Wallet Address</h2>

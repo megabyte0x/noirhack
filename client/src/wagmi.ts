@@ -2,11 +2,33 @@ import {
   base,
   baseSepolia,
 } from 'wagmi/chains';
-import { walletConnect, injected } from 'wagmi/connectors';
-import { http, createConfig } from '@wagmi/core'
+import { connectorsForWallets } from '@rainbow-me/rainbowkit';
+import { http } from 'viem';
+import {
+  metaMaskWallet,
+  walletConnectWallet,
+} from '@rainbow-me/rainbowkit/wallets';
+import { createConfig } from 'wagmi';
+
+// Your WalletConnect Project ID
+const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || '';
+
+const connectors = connectorsForWallets(
+  [
+    {
+      groupName: 'Recommended',
+      wallets: [
+        walletConnectWallet, metaMaskWallet
+      ]
+    }
+  ],
+  {
+    appName: 'TruScore',
+    projectId: projectId,
+  })
 
 export const config = createConfig({
-  connectors: [walletConnect({ projectId: 'e3cd993cfa41062f790eedd5875cc489' }), injected()],
+  connectors,
   chains: [
     base,
     ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true' ? [baseSepolia] : []),
@@ -16,4 +38,4 @@ export const config = createConfig({
     [baseSepolia.id]: http(),
   },
   ssr: true,
-});
+})

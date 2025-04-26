@@ -74,8 +74,8 @@ install-frontend:
 	@echo "Installing frontend dependencies..."
 	cd $(FRONTEND_DIR) && $(YARN) install
 
-.PHONY: dev
-dev:
+.PHONY: dev-frontend
+dev-frontend:
 	@echo "Starting frontend development server..."
 	cd $(FRONTEND_DIR) && $(YARN) dev
 
@@ -83,6 +83,11 @@ dev:
 build-frontend:
 	@echo "Building frontend..."
 	cd $(FRONTEND_DIR) && $(YARN) build
+
+.PHONY: deploy-frontend
+deploy-frontend:
+	@echo "Deploying frontend..."
+	cd $(FRONTEND_DIR) && $(YARN) deploy
 
 # Combined targets
 .PHONY: install
