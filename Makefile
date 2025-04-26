@@ -3,17 +3,17 @@
 # Variables
 NARGO := nargo
 FORGE := forge
-NPM := npm
+YARN := yarn
 BB := bb
 
 # Directories
 CIRCUITS_DIR := circuit
 CONTRACTS_DIR := contracts
-FRONTEND_DIR := frontend
+FRONTEND_DIR := client
 
 # Default target
-.PHONY: all
-all: build
+.PHONY: start
+start: install
 
 # Circuit related targets
 .PHONY: compile-cir
@@ -46,12 +46,13 @@ gen-vk-sol:
 	@echo "Generating VK..."
 	cd $(CIRCUITS_DIR) && $(BB) write_vk -b ./target/circuit.json -o ./target --oracle_hash keccak
 
+
+# Smart contract related targets
 .PHONY: gen-verifier-contract
 gen-verifier-contract:
 	@echo "Generating Verifier Contract..."
 	cd $(CIRCUITS_DIR) && $(BB) write_solidity_verifier -k ./target/vk -o ./target/Verifier.sol
 
-# Smart contract related targets
 .PHONY: build-contracts
 build-contracts:
 	@echo "Building smart contracts..."
@@ -71,19 +72,22 @@ deploy-contracts:
 .PHONY: install-frontend
 install-frontend:
 	@echo "Installing frontend dependencies..."
-	cd $(FRONTEND_DIR) && $(NPM) install
+	cd $(FRONTEND_DIR) && $(YARN) install
+
+.PHONY: dev
+dev:
+	@echo "Starting frontend development server..."
+	cd $(FRONTEND_DIR) && $(YARN) dev
 
 .PHONY: build-frontend
 build-frontend:
 	@echo "Building frontend..."
-	cd $(FRONTEND_DIR) && $(NPM) run build
-
-.PHONY: dev-frontend
-dev-frontend:
-	@echo "Starting frontend development server..."
-	cd $(FRONTEND_DIR) && $(NPM) run dev
+	cd $(FRONTEND_DIR) && $(YARN) build
 
 # Combined targets
+.PHONY: install
+install: install-frontend
+
 .PHONY: build
 build: compile-circuits build-contracts build-frontend
 
@@ -107,8 +111,8 @@ help:
 	@echo "  make verify-proof   - Verify proofs for Noir circuits"
 	@echo "  make gen-vk-sol     - Generate Verification Key for Solidity"
 	@echo "  make gen-vk         - Generate Verification Key"
+	
 	@echo "  make gen-verifier-contract - Generate Verifier Contract"
-
 	@echo "  make build-contracts   - Build smart contracts"
 	@echo "  make test-contracts    - Run contract tests"
 	@echo "  make deploy-contracts  - Deploy contracts"
