@@ -85,3 +85,20 @@ The flow of generating a reputation score is as follows:
 ### Generating Proof
 
 ![Generating Proof](./assets/2.png)
+
+## How to run
+
+### Prerequisites
+
+- `make`
+- `nargo`
+- `bb`
+
+### Steps
+
+1. Clone the repository
+2. Run `make compile-cir` to compile the circuits
+3. Run `make execute-cir` to execute the circuits with the given inputs in `./circuit/Prover.toml`
+4. Run `make gen-proof` to generate the proof
+5. Run `make gen-vk-sol` to generate the verification key for solidity
+6. Run `make gen-verifier-contract` to generate the verifier contract
