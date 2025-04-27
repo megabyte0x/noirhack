@@ -53,10 +53,16 @@ gen-verifier-contract:
 	@echo "Generating Verifier Contract..."
 	cd $(CIRCUITS_DIR) && $(BB) write_solidity_verifier -k ./target/vk -o ./target/Verifier.sol
 
-.PHONY: build-contracts
-build-contracts:
-	@echo "Building smart contracts..."
-	cd $(CONTRACTS_DIR) && $(FORGE) build
+.PHONY: copy-contract
+copy-contract:
+	@echo "Copying contract..."
+	mkdir -p $(CONTRACTS_DIR)/src/utils
+	cp $(CIRCUITS_DIR)/target/Verifier.sol $(CONTRACTS_DIR)/src/utils/Verifier.sol
+
+.PHONY: compile-contracts
+compile-contracts:
+	@echo "Compiling smart contracts..."
+	cd $(CONTRACTS_DIR) && $(FORGE) compile
 
 .PHONY: test-contracts
 test-contracts:

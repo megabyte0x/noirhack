@@ -2,3 +2,8 @@
 target
 .env
 client/src/circuit
+contracts/lib
+contracts/.vscode
+contracts/src/utils
+contracts/out
+contracts/cache
