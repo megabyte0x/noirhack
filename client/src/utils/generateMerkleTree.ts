@@ -1,44 +1,69 @@
-import type { IMTNode, IMTMerkleProof, IMT as IMTType } from "@zk-kit/imt"
-import { IMT } from "@zk-kit/imt"
+import type { LeanIMT as LeanIMTType, LeanIMTMerkleProof } from "@zk-kit/lean-imt"
+import { LeanIMT } from "@zk-kit/lean-imt"
 import { poseidon2 } from "poseidon-lite"
 import type { MerkleProof } from "./index"
-const DEPTH = 10;
-const ZERO_VALUE = BigInt(0);
-const ARITY = 2;
+import { MAX_DEPTH } from "./index"
+
+const hash = (a: bigint | number | string, b: bigint | number | string) => poseidon2([a, b]);
 
 export function generateMerkleRoot(commitment: bigint): MerkleProof {
-    let root: string | null = null;
-    let tree: IMTType;
-    let index: number;
-    let proof: IMTMerkleProof;
-    let pathIndices: number[] = [];
+    let tree: LeanIMTType;
+    let proof: LeanIMTMerkleProof;
+
+    let root: bigint = BigInt(0);
+    let pathIndices: number[] | null = null;
     let siblings: bigint[] = [];
+    let depth: number | null = null;
+
     if (process.env.NEXT_PUBLIC_ENV === "dev") {
 
-        tree = new IMT(poseidon2, DEPTH, ZERO_VALUE, ARITY);
+        tree = new LeanIMT(hash)
         tree.insert(commitment);
-        root = String(tree.root.valueOf());
-        index = tree.indexOf(commitment);
-        proof = tree.createProof(index);
+        tree.insert(commitment);
+        tree.insert(commitment);
+        root = tree.root;
 
-        pathIndices = proof.pathIndices;
+        const index = tree.indexOf(commitment);
+        proof = tree.generateProof(index);
+        console.log("proof", proof)
         siblings = proof.siblings;
+        const proof_length = proof.siblings.length;
+
+
+        // The index must be converted to a list of indices, 1 for each tree level.
+        // The missing siblings can be set to 0, as they won't be used in the circuit.
+        const merkleProofIndices = []
+        const merkleProofSiblings = proof.siblings
+
+        for (let i = 0; i < MAX_DEPTH; i += 1) {
+            merkleProofIndices.push((proof.index >> i) & 1)
+
+            if (merkleProofSiblings[i] === undefined) {
+                merkleProofSiblings[i] = BigInt(0)
+            }
+        }
+
+        pathIndices = merkleProofIndices
+
+        depth = proof_length !== 0 ? proof_length : 1
     } else {
         // TODO: get root from contract
 
     }
 
-    if (root !== null && pathIndices.length > 0 && siblings.length > 0) {
+    if (root !== BigInt(0) && pathIndices !== null && depth !== null) {
         return {
             root: root,
             pathIndices: pathIndices,
-            siblings: siblings
+            siblings: siblings,
+            depth: depth
         }
     }
 
     return {
-        root: "",
+        root: BigInt(0),
         pathIndices: [],
-        siblings: []
+        siblings: [],
+        depth: 0
     }
 }

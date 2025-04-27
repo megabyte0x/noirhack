@@ -4,7 +4,7 @@ import { generateCommitment } from "./generateCommitment";
 import { generateNullifier } from "./generateNullifier";
 import { generateMerkleRoot } from "./generateMerkleTree";
 import { generateProof } from "./generateProof";
-
+import type { ProofData } from "@aztec/bb.js";
 
 
 
@@ -28,34 +28,27 @@ export const getInputFields = async (signature: Hex, messageHash: Hex, address: 
     const pubKeyX = slice(pubKeyWithoutPrefix, 0, 32)
     const pubKeyY = slice(pubKeyWithoutPrefix, 32, 64)
 
-    // const nullifier = numberToHex(generateNullifier())
-    const nullifier = "0xfd1f1cf6"
+    const nullifier = numberToHex(generateNullifier())
+    // const nullifier = "0xfd1f1cf6"
     const commitment = generateCommitment(nullifier, address)
+    const commitmentHex = commitment.toString() as `0x${string}`
 
     const data = generateMerkleRoot(commitment);
-    const root = data.root
-    const pathIndices = calculatePathIndices(data.pathIndices)
-    const siblings = data.siblings.map(sibling => numberToHex(sibling))
 
-    let proof: any;
+
+    const root = data.root.toString() as `0x${string}`
+    const pathIndices = data.pathIndices
+    const siblings = data.siblings.map((s) => s.toString() as `0x${string}`)
+    const depth = data.depth
+
+    let proofData: ProofData | null = null;
 
     try {
-        proof = await generateProof(root, address, nullifier, pathIndices, siblings)
+        proofData = await generateProof(root, commitmentHex, pathIndices, siblings, depth)
 
     } catch (error) {
         console.error('Error generating proof:', error);
     }
 
-    console.log("proof", proof)
-    return proof
-}
-
-function calculatePathIndices(indices: number[]): Hex {
-    // Convert the array of indices to a binary number
-    // For example [0, 1, 0, 1] becomes 0101 binary or "5" decimal
-    let result = BigInt(0);
-    for (let i = 0; i < indices.length; i++) {
-        result = (result << BigInt(1)) | BigInt(indices[i]);
-    }
-    return numberToHex(result)
+    return proofData
 }

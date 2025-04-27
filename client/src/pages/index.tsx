@@ -5,8 +5,8 @@ import { useState, useEffect } from 'react';
 import AddressInput from '../components/addressInput';
 import styles from '../styles/Home.module.css';
 import { getInputFields } from '../utils';
-import type { InputFields } from '../utils';
 import type { Hex } from 'viem';
+import type { ProofData } from '@aztec/bb.js';
 
 const Home: NextPage = () => {
   const [loading, setLoading] = useState(false);
@@ -38,11 +38,11 @@ const Home: NextPage = () => {
   const handleAddressSubmit = async (address: Hex, signature?: Hex, messageHash?: Hex) => {
     setLoading(true);
     if (signature && messageHash) {
-      let proof: any;
+      let proofData: ProofData | null;
       try {
         setSubmittedAddress(address);
         setSignature(signature);
-        proof = await getInputFields(signature, messageHash, address)
+        proofData = await getInputFields(signature, messageHash, address)
       } catch (error) {
         console.error('Error submitting address:', error);
       } finally {

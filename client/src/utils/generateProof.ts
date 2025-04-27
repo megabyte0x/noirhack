@@ -1,17 +1,17 @@
 import { UltraHonkBackend } from '@aztec/bb.js';
+import type { ProofData } from '@aztec/bb.js';
 import { Noir } from '@noir-lang/noir_js';
 import type { CompiledCircuit } from '@noir-lang/noir_js';
 import circuit from "../../../circuit/target/circuit.json";
 import type { Hex } from 'viem';
 
 export async function generateProof(
-    root: string,
-    address: Hex,
-    nullifier: Hex,
-    pathIndices: Hex,
-    siblings: Hex[]
-
-) {
+    root: `0x${string}`,
+    commitment: `0x${string}`,
+    pathIndices: number[],
+    siblings: `0x${string}`[],
+    depth: number
+): Promise<ProofData> {
     let noir: Noir | null = null;
     let backend: UltraHonkBackend | null = null;
     try {
@@ -26,31 +26,37 @@ export async function generateProof(
     }
 
 
-    let witness: any;
+    let witness: Uint8Array<ArrayBufferLike>;
     try {
         const data = await noir.execute({
-            merkle_root: root,
-            address: address,
-            nullifier: nullifier,
-            path_indices: pathIndices,
-            sibling_path: siblings
+            commitment: commitment,
+            merkle_proof_depth: depth,
+            merkle_proof_indices: pathIndices,
+            merkle_proof_siblings: siblings,
+            expected_merkle_root: root
+        });
+        console.log('Input values:', {
+            commitment: commitment,
+            merkle_proof_depth: depth,
+            merkle_proof_indices: pathIndices,
+            merkle_proof_siblings: siblings,
+            expected_merkle_root: root
         });
         witness = data.witness;
-        console.log("witness", witness);
     } catch (error) {
         console.error('Error executing Noir circuit:', error);
         console.log('Input values:', {
-            merkle_root: root,
-            address: address,
-            nullifier: nullifier,
-            path_indices: pathIndices,
-            sibling_path: siblings
+            commitment: commitment,
+            merkle_proof_depth: depth,
+            merkle_proof_indices: pathIndices,
+            merkle_proof_siblings: siblings,
+            expected_merkle_root: root
         });
         throw error;
     }
-}
 
-/**
- * Converts an array of path indices to a single Field value
- * This converts the array of 0s and 1s into a single binary number
- */
+    const proof = await backend.generateProof(witness);
+    console.log("proof", proof.proof)
+
+    return proof;
+}
