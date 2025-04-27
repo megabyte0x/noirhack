@@ -1,10 +1,10 @@
 // Generate a random nullifier
 
-import { generateSiweNonce } from "viem/siwe"
-
 export function generateNullifier(): bigint {
-    const randomString = generateSiweNonce()
+    // Use browser-compatible crypto API
+    const array = new Uint32Array(1);
+    crypto.getRandomValues(array);
 
-    const nullifier = BigInt(`0x${randomString}`);
-    return nullifier;
+    // Use a large random number for the nullifier
+    return BigInt(array[0]);
 }

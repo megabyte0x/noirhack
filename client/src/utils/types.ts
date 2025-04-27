@@ -11,7 +11,7 @@ export type InputFields = {
 }
 
 export type MerkleProof = {
-    root: bigint;
+    root: string;
     pathIndices: number[];
     siblings: bigint[];
 }

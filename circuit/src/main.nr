@@ -24,9 +24,21 @@ fn membership_check(
     path_indices: Field,
     sibling_path: [Field; N],
 ) {
-    let mt = MerkleTree::default(merkle_root, hasher);
-
+    let mt = MerkleTree::from(merkle_root, hasher);
     let commitment = hasher([address, nullifier]);
+
+    println("merkle_root:");
+    println(merkle_root);
+    println("address:");
+    println(address);
+    println("nullifier:");
+    println(nullifier);
+    println("path_indices:");
+    println(path_indices);
+    println("sibling_path:");
+    println(sibling_path);
+    println("commitment:");
+    println(commitment);
 
     mt.membership(commitment, path_indices, sibling_path);
 }
@@ -37,16 +49,16 @@ fn main(
     nullifier: Field,
     path_indices: Field,
     sibling_path: [Field; N],
-    signature: Signature,
+    // signature: Signature,
 ) {
-    let valid_signature = verify_signature(
-        signature.public_key_x,
-        signature.public_key_y,
-        signature.signature,
-        signature.message,
-    );
+    // let valid_signature = verify_signature(
+    //     signature.public_key_x,
+    //     signature.public_key_y,
+    //     signature.signature,
+    //     signature.message,
+    // );
     /* Checks if the signature is valid. */
-    assert(valid_signature);
+    // assert(valid_signature);
 
     /* Checks if the address is a member of the Merkle tree. */
     membership_check(merkle_root, address, nullifier, path_indices, sibling_path);

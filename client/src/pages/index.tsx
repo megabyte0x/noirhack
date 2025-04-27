@@ -7,7 +7,6 @@ import styles from '../styles/Home.module.css';
 import { getInputFields } from '../utils';
 import type { InputFields } from '../utils';
 import type { Hex } from 'viem';
-import { generateMerkleRoot } from '../utils/generateMerkleTree';
 
 const Home: NextPage = () => {
   const [loading, setLoading] = useState(false);
@@ -24,7 +23,6 @@ const Home: NextPage = () => {
           isMetaMaskAvailable: typeof window !== 'undefined' && window.ethereum?.isMetaMask,
         };
         setProviderInfo(JSON.stringify(info, null, 2));
-        console.log('Provider info:', info);
       } catch (err) {
         console.error('Error checking providers:', err);
       }
@@ -37,42 +35,18 @@ const Home: NextPage = () => {
     }
   }, []);
 
-  const inputFields = (r: bigint, s: bigint, pubKeyX: bigint, pubKeyY: bigint, address: Hex, nullifier: bigint, commitment: bigint, root: bigint, pathIndices: number[], siblings: bigint[]) => {
-    console.log("--------------------------------")
-    console.log("r", r)
-    console.log("s", s)
-    console.log("pubKeyX", pubKeyX)
-    console.log("pubKeyY", pubKeyY)
-    console.log("address", address)
-    console.log("nullifier", nullifier)
-    console.log("commitment", commitment)
-    console.log("root", root)
-    console.log("pathIndices", pathIndices)
-    console.log("siblings", siblings)
-  }
-
   const handleAddressSubmit = async (address: Hex, signature?: Hex, messageHash?: Hex) => {
     setLoading(true);
     if (signature && messageHash) {
-      let data: InputFields | undefined;
+      let proof: any;
       try {
         setSubmittedAddress(address);
         setSignature(signature);
-        data = await getInputFields(signature, messageHash, address)
+        proof = await getInputFields(signature, messageHash, address)
       } catch (error) {
         console.error('Error submitting address:', error);
       } finally {
         setLoading(false);
-      }
-      if (data) {
-        const r = data.r;
-        const s = data.s;
-        const pubKeyX = data.pubKeyX;
-        const pubKeyY = data.pubKeyY;
-        const nullifier = data.nullifier
-        const commitment = data.commitment
-        const { root, pathIndices, siblings } = generateMerkleRoot(commitment);
-        inputFields(r, s, pubKeyX, pubKeyY, address, nullifier, commitment, root, pathIndices, siblings)
       }
     } else {
       console.error('Signature or message hash is undefined');

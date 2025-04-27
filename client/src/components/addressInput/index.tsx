@@ -11,7 +11,7 @@ const AddressInput = ({
     placeholder = 'Enter ETH address (0x...)',
     isLoading = false,
 }: AddressInputProps) => {
-    const [address, setAddress] = useState<Hex>('0x');
+    const [address, setAddress] = useState<Hex>('0xdDCc06f98A7C71Ab602b8247d540dA5BD8f5D2A2');
     const [error, setError] = useState('');
     const [signature, setSignature] = useState<Hex | null>(null);
     const [messageToSign, setMessageToSign] = useState<LinkWalletMessage | null>(null);
@@ -64,7 +64,6 @@ const AddressInput = ({
     }
 
     const verifySignature = useCallback(async (signature: Hex) => {
-        console.log('verifySignature called with signature:', signature);
         let result = false;
 
         // Must use the exact same message that was signed (same timestamp)
@@ -86,7 +85,6 @@ const AddressInput = ({
             console.error('Error verifying signature:', error);
             setError('Failed to verify signature. Please try again.');
         }
-        console.log('verifySignature result', result);
         return result;
     }, [address, messageToSign]);
 

@@ -2,13 +2,12 @@ import type { IMTNode, IMTMerkleProof, IMT as IMTType } from "@zk-kit/imt"
 import { IMT } from "@zk-kit/imt"
 import { poseidon2 } from "poseidon-lite"
 import type { MerkleProof } from "./index"
-
 const DEPTH = 10;
 const ZERO_VALUE = BigInt(0);
 const ARITY = 2;
 
 export function generateMerkleRoot(commitment: bigint): MerkleProof {
-    let root: bigint = BigInt(0);
+    let root: string | null = null;
     let tree: IMTType;
     let index: number;
     let proof: IMTMerkleProof;
@@ -18,10 +17,8 @@ export function generateMerkleRoot(commitment: bigint): MerkleProof {
 
         tree = new IMT(poseidon2, DEPTH, ZERO_VALUE, ARITY);
         tree.insert(commitment);
-        root = BigInt(tree.root.valueOf());
-
+        root = String(tree.root.valueOf());
         index = tree.indexOf(commitment);
-
         proof = tree.createProof(index);
 
         pathIndices = proof.pathIndices;
@@ -31,16 +28,16 @@ export function generateMerkleRoot(commitment: bigint): MerkleProof {
 
     }
 
-    if (root !== BigInt(0) && pathIndices.length > 0 && siblings.length > 0) {
+    if (root !== null && pathIndices.length > 0 && siblings.length > 0) {
         return {
-            root,
-            pathIndices,
-            siblings
+            root: root,
+            pathIndices: pathIndices,
+            siblings: siblings
         }
     }
 
     return {
-        root: BigInt(0),
+        root: "",
         pathIndices: [],
         siblings: []
     }
