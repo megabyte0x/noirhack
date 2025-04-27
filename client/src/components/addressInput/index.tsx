@@ -69,7 +69,6 @@ const AddressInput = ({
 
         // Must use the exact same message that was signed (same timestamp)
         if (!messageToSign) {
-            console.error('No message available for verification');
             setError('Verification failed: no message available');
             return false;
         }

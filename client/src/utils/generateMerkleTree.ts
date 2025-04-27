@@ -17,11 +17,8 @@ export function generateMerkleRoot(commitment: bigint): MerkleProof {
     if (process.env.NEXT_PUBLIC_ENV === "dev") {
 
         tree = new IMT(poseidon2, DEPTH, ZERO_VALUE, ARITY);
-        root = BigInt(tree.root.valueOf());
-        console.log("root before insert", root);
         tree.insert(commitment);
         root = BigInt(tree.root.valueOf());
-        console.log("root after insert", root);
 
         index = tree.indexOf(commitment);
 
@@ -31,6 +28,7 @@ export function generateMerkleRoot(commitment: bigint): MerkleProof {
         siblings = proof.siblings;
     } else {
         // TODO: get root from contract
+
     }
 
     if (root !== BigInt(0) && pathIndices.length > 0 && siblings.length > 0) {
