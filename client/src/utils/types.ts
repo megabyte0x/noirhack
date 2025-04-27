@@ -16,3 +16,10 @@ export type MerkleProof = {
     siblings: bigint[];
     depth: number;
 }
+
+export type SignatureData = {
+    publicKeyX: Uint8Array;
+    publicKeyY: Uint8Array;
+    messageHash: Uint8Array;
+    signature: Uint8Array;
+}

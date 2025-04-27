@@ -1,24 +1,35 @@
-import { slice, recoverPublicKey, numberToHex } from "viem";
-import type { Hex } from "viem";
+import { slice, recoverPublicKey, numberToHex, parseSignature, hexToBytes } from "viem";
+import type { Hex, Signature } from "viem";
 import { generateCommitment } from "./generateCommitment";
 import { generateNullifier } from "./generateNullifier";
 import { generateMerkleRoot } from "./generateMerkleTree";
 import { generateProof } from "./generateProof";
 import type { ProofData } from "@aztec/bb.js";
+import type { SignatureData } from "./types";
 
 
+export const getInputFields = async (userSignature: Hex, messageHash: Hex, address: Hex) => {
+    let signatureData: SignatureData | null = null;
 
-export const getInputFields = async (signature: Hex, messageHash: Hex, address: Hex) => {
-    const signatureWithoutPrefix = slice(signature, 1)
-    const r = slice(signatureWithoutPrefix, 0, 32)
-    const s = slice(signatureWithoutPrefix, 32, 64)
+    // Parse the Ethereum signature using Viem's parseSignature utility
+    // This will split the signature into r, s, and v (yParity)
+    const parsedSignature = parseSignature(userSignature);
+
+    // For Noir's verify_signature, we need to create a 64-byte array from r and s
+    const rBytes = hexToBytes(parsedSignature.r, { size: 32 });
+    const sBytes = hexToBytes(parsedSignature.s, { size: 32 });
+
+    // Concatenate r and s for Noir's [u8; 64] signature format
+    const signatureBytes = new Uint8Array(64);
+    signatureBytes.set(rBytes, 0);
+    signatureBytes.set(sBytes, 32);
 
     let pubKeyHex: Hex = "0x";
 
     try {
         pubKeyHex = await recoverPublicKey({
             hash: messageHash,
-            signature: signature
+            signature: userSignature
         })
     } catch (error) {
         console.error('Error recovering public key:', error);
@@ -28,8 +39,14 @@ export const getInputFields = async (signature: Hex, messageHash: Hex, address: 
     const pubKeyX = slice(pubKeyWithoutPrefix, 0, 32)
     const pubKeyY = slice(pubKeyWithoutPrefix, 32, 64)
 
+    signatureData = {
+        publicKeyX: hexToBytes(pubKeyX, { size: 32 }),
+        publicKeyY: hexToBytes(pubKeyY, { size: 32 }),
+        messageHash: hexToBytes(messageHash, { size: 32 }),
+        signature: signatureBytes
+    }
+
     const nullifier = numberToHex(generateNullifier())
-    // const nullifier = "0xfd1f1cf6"
     const commitment = generateCommitment(nullifier, address)
     const commitmentHex = commitment.toString() as `0x${string}`
 
@@ -44,7 +61,7 @@ export const getInputFields = async (signature: Hex, messageHash: Hex, address: 
     let proofData: ProofData | null = null;
 
     try {
-        proofData = await generateProof(root, commitmentHex, pathIndices, siblings, depth)
+        proofData = await generateProof(root, commitmentHex, pathIndices, siblings, depth, signatureData)
 
     } catch (error) {
         console.error('Error generating proof:', error);

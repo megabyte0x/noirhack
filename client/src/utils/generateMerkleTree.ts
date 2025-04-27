@@ -19,13 +19,10 @@ export function generateMerkleRoot(commitment: bigint): MerkleProof {
 
         tree = new LeanIMT(hash)
         tree.insert(commitment);
-        tree.insert(commitment);
-        tree.insert(commitment);
         root = tree.root;
 
         const index = tree.indexOf(commitment);
         proof = tree.generateProof(index);
-        console.log("proof", proof)
         siblings = proof.siblings;
         const proof_length = proof.siblings.length;
 
