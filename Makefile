@@ -74,6 +74,13 @@ install-frontend:
 	@echo "Installing frontend dependencies..."
 	cd $(FRONTEND_DIR) && $(YARN) install
 
+# command to copy circuit/target/circuit.json to client/src in a new directory called circuit in file called circuit.json
+.PHONY: copy-cir
+copy-cir:
+	@echo "Copying circuit..."
+	mkdir -p $(FRONTEND_DIR)/src/circuit
+	cp $(CIRCUITS_DIR)/target/circuit.json $(FRONTEND_DIR)/src/circuit/circuit.json
+
 .PHONY: dev-frontend
 dev-frontend:
 	@echo "Starting frontend development server..."

@@ -2,8 +2,7 @@ import { UltraHonkBackend } from '@aztec/bb.js';
 import type { ProofData } from '@aztec/bb.js';
 import { Noir } from '@noir-lang/noir_js';
 import type { CompiledCircuit } from '@noir-lang/noir_js';
-import circuit from "../../../circuit/target/circuit.json";
-import type { Hex } from 'viem';
+import circuit from "../circuit/circuit.json"
 
 export async function generateProof(
     root: `0x${string}`,
@@ -26,16 +25,9 @@ export async function generateProof(
     }
 
 
-    let witness: Uint8Array<ArrayBufferLike>;
+    let witness: Uint8Array;
     try {
         const data = await noir.execute({
-            commitment: commitment,
-            merkle_proof_depth: depth,
-            merkle_proof_indices: pathIndices,
-            merkle_proof_siblings: siblings,
-            expected_merkle_root: root
-        });
-        console.log('Input values:', {
             commitment: commitment,
             merkle_proof_depth: depth,
             merkle_proof_indices: pathIndices,

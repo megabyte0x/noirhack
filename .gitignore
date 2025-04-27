@@ -1,3 +1,4 @@
 .cursor
 target
 .env
+client/src/circuit
