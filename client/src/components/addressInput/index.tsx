@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import styles from '../../styles/AddressInput.module.css';
 import { signTypedData, verifyTypedData } from '@wagmi/core';
 import { config } from '../../wagmi';
@@ -18,6 +18,7 @@ const AddressInput = ({
     const [messageHash, setMessageHash] = useState<Hex | null>(null);
     const [pendingSignature, setPendingSignature] = useState<Hex | null>(null);
     const [isVerified, setIsVerified] = useState(false);
+    const submissionProcessed = useRef(false);
 
     // Memoize the validation function to avoid recreating it on every render
     const validateAddress = useCallback((value: string): boolean => {
@@ -111,6 +112,9 @@ const AddressInput = ({
         e.preventDefault();
         if (validateAddress(address)) {
             try {
+                // Reset submission flag when starting a new submission
+                submissionProcessed.current = false;
+
                 // Create message with timestamp and get signature
                 const { signature, messageHash } = await signMessage();
                 if (signature !== null) {
@@ -129,7 +133,9 @@ const AddressInput = ({
 
     // Effect to handle signature updates
     useEffect(() => {
-        if (validateAddress(address) && signature && isVerified && messageHash) {
+        if (validateAddress(address) && signature && isVerified && messageHash && !submissionProcessed.current) {
+            console.log("Calling onSubmit - this should only happen once per submission");
+            submissionProcessed.current = true;
             onSubmit(address, signature, messageHash);
         }
     }, [address, onSubmit, validateAddress, signature, isVerified, messageHash]);
