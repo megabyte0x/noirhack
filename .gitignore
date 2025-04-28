@@ -1,7 +1,6 @@
 .cursor
 target
 .env
-client/src/circuit
 contracts/lib
 contracts/.vscode
 contracts/src/utils
