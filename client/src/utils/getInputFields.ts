@@ -8,7 +8,7 @@ import type { ProofData } from "@aztec/bb.js";
 import type { SignatureData } from "./types";
 
 
-export const getInputFields = async (userSignature: Hex, messageHash: Hex, address: Hex) => {
+export const getInputFields = async (userSignature: Hex, messageHash: Hex, address: Hex): Promise<ProofData> => {
     let signatureData: SignatureData | null = null;
 
     // Parse the Ethereum signature using Viem's parseSignature utility
@@ -62,10 +62,12 @@ export const getInputFields = async (userSignature: Hex, messageHash: Hex, addre
 
     try {
         proofData = await generateProof(root, commitmentHex, pathIndices, siblings, depth, signatureData)
-
     } catch (error) {
         console.error('Error generating proof:', error);
     }
-
+    if (proofData === null) {
+        throw new Error("Proof generation failed");
+    }
     return proofData
+
 }

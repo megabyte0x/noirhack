@@ -6,7 +6,7 @@ import AddressInput from '../components/addressInput';
 import styles from '../styles/Home.module.css';
 import { getInputFields } from '../utils';
 import type { Hex } from 'viem';
-import type { ProofData } from '@aztec/bb.js';
+import { splitHonkProof, type ProofData } from '@aztec/bb.js';
 
 const Home: NextPage = () => {
   const [loading, setLoading] = useState(false);
@@ -43,6 +43,12 @@ const Home: NextPage = () => {
         setSubmittedAddress(address);
         setSignature(signature);
         proofData = await getInputFields(signature, messageHash, address)
+        const proofWithoutPublicInputs = splitHonkProof(proofData.proof)
+        const proofInBytes = `0x${Array.from(proofWithoutPublicInputs.proof)
+          .map(b => b.toString(16).padStart(2, '0'))
+          .join('')}`;
+        console.log("proof data", proofInBytes)
+        console.log("proof data", proofData.publicInputs)
       } catch (error) {
         console.error('Error submitting address:', error);
       } finally {

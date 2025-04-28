@@ -3,6 +3,5 @@ target
 .env
 contracts/lib
 contracts/.vscode
-contracts/src/utils
 contracts/out
 contracts/cache
