@@ -13,7 +13,7 @@ export function generateMerkleRoot(commitment: bigint): MerkleProof {
     let root: bigint = BigInt(0);
     let pathIndices: number[] | null = null;
     let siblings: bigint[] = [];
-    let depth: number | null = null;
+    let proof_length: number | null = null;
 
     if (process.env.NEXT_PUBLIC_ENV === "dev") {
 
@@ -23,8 +23,7 @@ export function generateMerkleRoot(commitment: bigint): MerkleProof {
 
         const index = tree.indexOf(commitment);
         proof = tree.generateProof(index);
-        siblings = proof.siblings;
-        const proof_length = proof.siblings.length;
+        proof_length = proof.siblings.length;
 
 
         // The index must be converted to a list of indices, 1 for each tree level.
@@ -41,19 +40,18 @@ export function generateMerkleRoot(commitment: bigint): MerkleProof {
         }
 
         pathIndices = merkleProofIndices
-
-        depth = proof_length !== 0 ? proof_length : 1
+        siblings = merkleProofSiblings
     } else {
         // TODO: get root from contract
 
     }
 
-    if (root !== BigInt(0) && pathIndices !== null && depth !== null) {
+    if (root !== BigInt(0) && pathIndices !== null && proof_length !== null) {
         return {
             root: root,
             pathIndices: pathIndices,
             siblings: siblings,
-            depth: depth
+            depth: proof_length
         }
     }
 
