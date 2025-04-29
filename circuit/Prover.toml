@@ -1,3 +1,9 @@
+commitment = ""
+expected_merkle_root = ""
+merkle_proof_depth = ""
+merkle_proof_indices = ["", "", "", "", "", "", "", "", "", ""]
+merkle_proof_siblings = ["", "", "", "", "", "", "", "", "", ""]
+
 [signatureData]
 message_hash = [
     "",

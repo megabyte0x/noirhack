@@ -7,10 +7,10 @@
   resolved "https://registry.yarnpkg.com/@adraffy/ens-normalize/-/ens-normalize-1.11.0.tgz#42cc67c5baa407ac25059fcd7d405cc5ecdb0c33"
   integrity sha512-/3DDPKHqqIqxUULp8yP4zODUY1i+2xvVWsv8A79xGWdCAG+8sb0hRh0Rk2QyOJUnnbyPUAZYcpBuRe3nS2OIUg==
 
-"@aztec/bb.js@0.72.1":
-  version "0.72.1"
-  resolved "https://registry.yarnpkg.com/@aztec/bb.js/-/bb.js-0.72.1.tgz#d44e64b9c35af777b968ec8f541f81bc1d3e67ab"
-  integrity sha512-CyySqBvaA/TJ/e8KksDp6vS44IUMY2LNJbigm4rKc3jJXjj0xc33V6V5DfC9kR0iVGnFFsvm+BlVBxFsCIQaAg==
+"@aztec/bb.js@0.82.2":
+  version "0.82.2"
+  resolved "https://registry.yarnpkg.com/@aztec/bb.js/-/bb.js-0.82.2.tgz#e123cd781a534b5868da016d93165043923058b4"
+  integrity sha512-MBOHFVHOtfsknyJ1IsHH30paYqf0qLwYkiDTPyH1/KtkMwemvo5VyIgY0Dsl81KQa388MzoKhC6qnaFgERiaog==
   dependencies:
     comlink "^4.4.1"
     commander "^12.1.0"

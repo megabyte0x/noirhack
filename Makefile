@@ -21,6 +21,11 @@ compile-cir:
 	@echo "Building Noir circuits..."
 	cd $(CIRCUITS_DIR) && $(NARGO) compile
 
+.PHONY: check-cir
+check-cir:
+	@echo "Checking circuits..."
+	cd $(CIRCUITS_DIR) && $(NARGO) check --overwrite
+
 .PHONY: execute-cir
 execute-cir:
 	@echo "Executing circuits..."
