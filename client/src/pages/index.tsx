@@ -43,12 +43,9 @@ const Home: NextPage = () => {
         setSubmittedAddress(address);
         setSignature(signature);
         proofData = await getInputFields(signature, messageHash, address)
-        const proofWithoutPublicInputs = splitHonkProof(proofData.proof)
-        const proofInBytes = `0x${Array.from(proofWithoutPublicInputs.proof)
-          .map(b => b.toString(16).padStart(2, '0'))
-          .join('')}`;
-        console.log("proof data", proofInBytes)
-        console.log("proof data", proofData.publicInputs)
+
+        // TODO: send proofData to the contract
+
       } catch (error) {
         console.error('Error submitting address:', error);
       } finally {

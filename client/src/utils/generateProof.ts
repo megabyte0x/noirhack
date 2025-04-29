@@ -60,7 +60,7 @@ export async function generateProof(
         throw error;
     }
 
-    const proof = await backend.generateProof(witness);
+    const proof = await backend.generateProof(witness, { keccak: true });
 
     return proof;
 }
