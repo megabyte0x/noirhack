@@ -52,9 +52,9 @@ const Home: NextPage = () => {
         const result = await verifyProof(proof, proofData.publicInputs);
 
         if (result) {
-          console.log("Proof verified successfully");
+          console.log("Proof verified successfully ✅");
         } else {
-          console.log("Proof verification failed");
+          console.log("Proof verification failed ❌");
         }
 
       } catch (error) {
