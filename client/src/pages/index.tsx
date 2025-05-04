@@ -4,17 +4,20 @@ import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import AddressInput from '../components/addressInput';
 import styles from '../styles/Home.module.css';
-import { getInputFields } from '../utils';
+import { CONTRACT_VERIFIER_ADDRESS, getInputFields } from '../utils';
 import type { Hex } from 'viem';
 import type { ProofData } from '@aztec/bb.js';
 import { toHex } from 'viem';
+import { sendTransaction } from '@wagmi/core';
+import { useSendTransaction } from 'wagmi';
+import { verifyProof } from '../utils/contractCall/verifyProof';
 
 const Home: NextPage = () => {
   const [loading, setLoading] = useState(false);
   const [submittedAddress, setSubmittedAddress] = useState<Hex | undefined>(undefined);
   const [signature, setSignature] = useState<Hex | undefined>(undefined);
   const [providerInfo, setProviderInfo] = useState<string>('');
-
+  const { data: hash, sendTransaction } = useSendTransaction()
   // Effect to log provider info
   useEffect(() => {
     const checkProviders = () => {
@@ -46,11 +49,13 @@ const Home: NextPage = () => {
         proofData = await getInputFields(signature, messageHash, address)
         const proof = toHex(proofData.proof);
 
-        console.log("proof", proof);
+        const result = await verifyProof(proof, proofData.publicInputs);
 
-        console.log("publicInputs", proofData.publicInputs);
-
-        // TODO: send proof and publicInputs to the contract
+        if (result) {
+          console.log("Proof verified successfully");
+        } else {
+          console.log("Proof verification failed");
+        }
 
       } catch (error) {
         console.error('Error submitting address:', error);
