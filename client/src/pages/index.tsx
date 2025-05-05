@@ -2,22 +2,21 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
-import AddressInput from '../components/addressInput';
-import styles from '../styles/Home.module.css';
-import { CONTRACT_VERIFIER_ADDRESS, getInputFields } from '../utils';
 import type { Hex } from 'viem';
 import type { ProofData } from '@aztec/bb.js';
 import { toHex } from 'viem';
-import { sendTransaction } from '@wagmi/core';
-import { useSendTransaction } from 'wagmi';
-import { verifyProof } from '../utils/contractCall/verifyProof';
+
+import { verifyProof, updateMerkleRoot } from '../utils/contractCall';
+import AddressInput from '../components/addressInput';
+import styles from '../styles/Home.module.css';
+import { getInputFields } from '../utils';
 
 const Home: NextPage = () => {
   const [loading, setLoading] = useState(false);
   const [submittedAddress, setSubmittedAddress] = useState<Hex | undefined>(undefined);
   const [signature, setSignature] = useState<Hex | undefined>(undefined);
   const [providerInfo, setProviderInfo] = useState<string>('');
-  const { data: hash, sendTransaction } = useSendTransaction()
+
   // Effect to log provider info
   useEffect(() => {
     const checkProviders = () => {
@@ -43,18 +42,32 @@ const Home: NextPage = () => {
     setLoading(true);
     if (signature && messageHash) {
       let proofData: ProofData | null;
+      let merkleRoot: Hex | null;
       try {
         setSubmittedAddress(address);
         setSignature(signature);
-        proofData = await getInputFields(signature, messageHash, address)
+        const inputFields = await getInputFields(signature, messageHash, address)
+        proofData = inputFields.proofData;
+        merkleRoot = inputFields.merkleRoot;
+
+
         const proof = toHex(proofData.proof);
 
-        const result = await verifyProof(proof, proofData.publicInputs);
+        const isValid = await verifyProof(proof, proofData.publicInputs);
 
-        if (result) {
+        if (isValid) {
           console.log("Proof verified successfully ✅");
         } else {
           console.log("Proof verification failed ❌");
+        }
+
+        const hash = await updateMerkleRoot(merkleRoot, proof, proofData.publicInputs);
+
+        if (hash) {
+          console.log("Merkle root updated successfully ✅");
+          console.log(`https://base-sepolia.blockscout.com/tx/${hash}`);
+        } else {
+          console.log("Merkle root update failed ❌");
         }
 
       } catch (error) {
