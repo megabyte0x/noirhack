@@ -3,10 +3,12 @@ import { LeanIMT } from "@zk-kit/lean-imt"
 import { poseidon2 } from "poseidon-lite"
 import type { MerkleProof } from "./index"
 import { MAX_DEPTH } from "./index"
+import { getMerkleRoot } from "./contractCall"
+import type { Hex } from "viem"
 
 const hash = (a: bigint | number | string, b: bigint | number | string) => poseidon2([a, b]);
 
-export function generateMerkleRoot(commitment: bigint): MerkleProof {
+export async function generateMerkleRoot(commitment: bigint, address: Hex): Promise<MerkleProof> {
     let tree: LeanIMTType;
     let proof: LeanIMTMerkleProof;
 
@@ -20,6 +22,8 @@ export function generateMerkleRoot(commitment: bigint): MerkleProof {
         tree = new LeanIMT(hash)
         tree.insert(commitment);
         root = tree.root;
+        console.log("Root:", root);
+        console.log("Leaves:", tree.leaves);
 
         const index = tree.indexOf(commitment);
         proof = tree.generateProof(index);
@@ -41,8 +45,14 @@ export function generateMerkleRoot(commitment: bigint): MerkleProof {
 
         pathIndices = merkleProofIndices
         siblings = merkleProofSiblings
+        await getMerkleRoot(address);
     } else {
         // TODO: get root from contract
+        // try {
+        //     root = await getMerkleRoot(address);
+        // } catch (error) {
+        //     console.error(error)
+        // }
 
     }
 

@@ -41,39 +41,44 @@ const Home: NextPage = () => {
   const handleAddressSubmit = async (address: Hex, signature?: Hex, messageHash?: Hex) => {
     setLoading(true);
     if (signature && messageHash) {
-      let proofData: ProofData | null;
-      let merkleRoot: Hex | null;
+      let proofData: ProofData | null = null;
+      let merkleRoot: Hex | null = null;
+      let isValid: boolean | null = null;
+      let proof: Hex | null = null;
+      let hash: Hex | null = null;
       try {
         setSubmittedAddress(address);
         setSignature(signature);
         const inputFields = await getInputFields(signature, messageHash, address)
         proofData = inputFields.proofData;
         merkleRoot = inputFields.merkleRoot;
+        proof = toHex(proofData.proof);
 
-
-        const proof = toHex(proofData.proof);
-
-        const isValid = await verifyProof(proof, proofData.publicInputs);
+        isValid = await verifyProof(proof, proofData.publicInputs);
 
         if (isValid) {
           console.log("Proof verified successfully ✅");
         } else {
           console.log("Proof verification failed ❌");
         }
-
-        const hash = await updateMerkleRoot(merkleRoot, proof, proofData.publicInputs);
-
-        if (hash) {
-          console.log("Merkle root updated successfully ✅");
-          console.log(`https://base-sepolia.blockscout.com/tx/${hash}`);
-        } else {
-          console.log("Merkle root update failed ❌");
-        }
-
       } catch (error) {
         console.error('Error submitting address:', error);
       } finally {
         setLoading(false);
+      }
+      if (isValid && proof && merkleRoot && proofData) {
+        try {
+          hash = await updateMerkleRoot(merkleRoot, proof, proofData.publicInputs);
+        } catch (error) {
+          console.error('Error updating merkle root:', error);
+        }
+      }
+
+      if (hash) {
+        console.log("Merkle root updated successfully ✅");
+        console.log(`https://base-sepolia.blockscout.com/tx/${hash}`);
+      } else {
+        console.log("Merkle root update failed ❌");
       }
     } else {
       console.error('Signature or message hash is undefined');

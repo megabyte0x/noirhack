@@ -50,7 +50,7 @@ export const getInputFields = async (userSignature: Hex, messageHash: Hex, addre
     const commitment = generateCommitment(nullifier, address)
     const commitmentHex = commitment.toString() as `0x${string}`
 
-    const data = generateMerkleRoot(commitment);
+    const data = await generateMerkleRoot(commitment, address);
 
 
     const root = data.root.toString() as `0x${string}`
