@@ -103,9 +103,123 @@
   color: #065f46;
 }
 
+/* Profile confirmation popup */
+.confirmPopup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+}
+
+.confirmPopup h3 {
+  margin-top: 0;
+  color: #0d76fc;
+}
+
+.confirmButtons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.confirmButton,
+.cancelButton {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.confirmButton {
+  background-color: #0d76fc;
+  color: white;
+}
+
+.confirmButton:hover {
+  background-color: #0a5cbf;
+}
+
+.cancelButton {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.cancelButton:hover {
+  background-color: #e5e7eb;
+}
+
+/* Profile and linked wallet styles */
+.profileInfo {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  width: 100%;
+  max-width: 600px;
+}
+
+.profileInfo h2 {
+  color: #0d76fc;
+  margin-top: 0;
+}
+
+.profileInfo p {
+  margin: 0.5rem 0;
+}
+
+.walletList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.walletList li {
+  background-color: #eef2ff;
+  border: 1px solid #dbeafe;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  font-family: monospace;
+  word-break: break-all;
+  font-size: 0.9rem;
+}
+
+.signatureInfo {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #4b5563;
+}
+
 @media (max-width: 600px) {
   .grid {
     width: 100%;
     flex-direction: column;
+  }
+
+  .confirmPopup {
+    width: 95%;
+    padding: 1.5rem;
+  }
+
+  .confirmButtons {
+    flex-direction: column;
+  }
+
+  .confirmButton,
+  .cancelButton {
+    width: 100%;
+    margin-bottom: 0.5rem;
   }
 }

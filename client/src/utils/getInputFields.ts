@@ -1,5 +1,5 @@
 import { slice, recoverPublicKey, numberToHex, parseSignature, hexToBytes } from "viem";
-import type { Hex, Signature } from "viem";
+import type { Hex } from "viem";
 import { generateCommitment } from "./generateCommitment";
 import { generateNullifier } from "./generateNullifier";
 import { generateMerkleRoot } from "./generateMerkleTree";

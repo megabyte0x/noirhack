@@ -5,13 +5,15 @@ import { config } from '../../wagmi';
 import { types, domain, message, typedDataHash } from './utils';
 import type { AddressInputProps, LinkWalletMessage } from './types';
 import type { Hex } from 'viem';
+import { useAccount } from 'wagmi';
+
 const AddressInput = ({
     onSubmit,
-    buttonText = 'Submit',
-    placeholder = 'Enter ETH address (0x...)',
+    buttonText = 'Link Wallet',
+    placeholder = 'Connect wallet to link address',
     isLoading = false,
 }: AddressInputProps) => {
-    const [address, setAddress] = useState<Hex>('0xdDCc06f98A7C71Ab602b8247d540dA5BD8f5D2A2');
+    const { address: connectedAddress, isConnected } = useAccount();
     const [error, setError] = useState('');
     const [signature, setSignature] = useState<Hex | null>(null);
     const [messageToSign, setMessageToSign] = useState<LinkWalletMessage | null>(null);
@@ -21,7 +23,7 @@ const AddressInput = ({
     const submissionProcessed = useRef(false);
 
     // Memoize the validation function to avoid recreating it on every render
-    const validateAddress = useCallback((value: string): boolean => {
+    const validateAddress = useCallback((value: string | undefined): boolean => {
         if (!value) {
             setError('Address is required');
             return false;
@@ -38,10 +40,12 @@ const AddressInput = ({
     }, []);
 
     const signMessage = async () => {
+        if (!connectedAddress) return { signature: null, messageHash: null };
+
         // Create the message with current timestamp
-        const msgToSign = message(address);
+        const msgToSign = message(connectedAddress);
         const typedData = {
-            account: address,
+            account: connectedAddress,
             domain,
             types,
             primaryType: 'LinkWallet' as const,
@@ -60,12 +64,13 @@ const AddressInput = ({
             setError('Failed to sign message. Please try again.');
         }
 
-
         return { signature, messageHash };
     }
 
     const verifySignature = useCallback(async (signature: Hex) => {
         let result = false;
+
+        if (!connectedAddress) return false;
 
         // Must use the exact same message that was signed (same timestamp)
         if (!messageToSign) {
@@ -75,7 +80,7 @@ const AddressInput = ({
 
         try {
             result = await verifyTypedData(config, {
-                address: address,
+                address: connectedAddress,
                 signature: signature,
                 domain,
                 types,
@@ -87,7 +92,7 @@ const AddressInput = ({
             setError('Failed to verify signature. Please try again.');
         }
         return result;
-    }, [address, messageToSign]);
+    }, [connectedAddress, messageToSign]);
 
     // Effect to verify signature after messageToSign is updated
     useEffect(() => {
@@ -110,19 +115,24 @@ const AddressInput = ({
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (validateAddress(address)) {
+        if (!connectedAddress) {
+            setError('Please connect your wallet first');
+            return;
+        }
+
+        if (validateAddress(connectedAddress)) {
             try {
                 // Reset submission flag when starting a new submission
                 submissionProcessed.current = false;
 
                 // Create message with timestamp and get signature
                 const { signature, messageHash } = await signMessage();
-                if (signature !== null) {
+                if (signature !== null && messageHash !== null) {
                     // Set the pending signature to trigger verification in useEffect
                     setPendingSignature(signature);
                     setMessageHash(messageHash);
                 } else {
-                    console.log('signature is null');
+                    console.log('signature or messageHash is null');
                 }
             } catch (error) {
                 console.error('Error signing message:', error);
@@ -133,35 +143,32 @@ const AddressInput = ({
 
     // Effect to handle signature updates
     useEffect(() => {
-        if (validateAddress(address) && signature && isVerified && messageHash && !submissionProcessed.current) {
+        if (connectedAddress && validateAddress(connectedAddress) && signature && isVerified && messageHash && !submissionProcessed.current) {
             console.log("Calling onSubmit - this should only happen once per submission");
             submissionProcessed.current = true;
-            onSubmit(address, signature, messageHash);
+            onSubmit(connectedAddress, signature, messageHash);
         }
-    }, [address, onSubmit, validateAddress, signature, isVerified, messageHash]);
+    }, [connectedAddress, onSubmit, validateAddress, signature, isVerified, messageHash]);
 
     return (
         <div className={styles.container}>
-            <form onSubmit={handleSubmit} className={styles.form}>
-                <input
-                    type="text"
-                    value={address}
-                    onChange={(e) => {
-                        setAddress(e.target.value as Hex);
-                        if (error) validateAddress(e.target.value);
-                    }}
-                    placeholder={placeholder}
-                    className={styles.input}
-                    disabled={isLoading}
-                />
+            <div className={styles.form}>
+                <div className={styles.addressDisplay}>
+                    {isConnected && connectedAddress ? (
+                        <span>{connectedAddress}</span>
+                    ) : (
+                        <span className={styles.placeholder}>{placeholder}</span>
+                    )}
+                </div>
                 <button
-                    type="submit"
+                    type="button"
+                    onClick={handleSubmit}
                     className={styles.button}
-                    disabled={isLoading}
+                    disabled={isLoading || !isConnected}
                 >
                     {isLoading ? 'Loading...' : buttonText}
                 </button>
-            </form>
+            </div>
             {error && <p className={styles.error}>{error}</p>}
         </div>
     );
