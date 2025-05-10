@@ -52,7 +52,6 @@ export const getInputFields = async (userSignature: Hex, messageHash: Hex, addre
 
     const data = await generateMerkleRoot(commitment, address);
 
-
     const root = data.root.toString() as `0x${string}`
     const pathIndices = data.pathIndices
     const siblings = data.siblings.map((s) => s.toString() as `0x${string}`)

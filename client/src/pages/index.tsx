@@ -10,7 +10,7 @@ import { useAccount } from 'wagmi';
 import { verifyProof, updateMerkleRoot } from '../utils/contractCall';
 import AddressInput from '../components/addressInput';
 import styles from '../styles/Home.module.css';
-import { getInputFields } from '../utils';
+import { BLOCK_EXPLORER_URL, getInputFields } from '../utils';
 
 // Type definition for profile data in localStorage
 type ProfileData = {
@@ -30,6 +30,9 @@ const Home: NextPage = () => {
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [showProfileConfirm, setShowProfileConfirm] = useState(false);
   const [updatingMerkleRoot, setUpdatingMerkleRoot] = useState(false);
+  const [isValid, setIsValid] = useState(false);
+  const [merkleRoot, setMerkleRoot] = useState<Hex | null>(null);
+  const [transactionHash, setTransactionHash] = useState<Hex | null>(null);
 
   // Get the connected account using wagmi
   const { address, isConnected } = useAccount();
@@ -90,6 +93,9 @@ const Home: NextPage = () => {
 
     try {
       hash = await updateMerkleRoot(merkleRoot, proof, publicInputs);
+      if (hash) {
+        setTransactionHash(hash);
+      }
     } catch (error) {
       console.error('Error updating merkle root:', error);
     } finally {
@@ -98,7 +104,7 @@ const Home: NextPage = () => {
 
     if (hash) {
       console.log("Merkle root updated successfully ✅");
-      console.log(`https://base-sepolia.blockscout.com/tx/${hash}`);
+      console.log(`${BLOCK_EXPLORER_URL}/tx/${hash}`);
 
       // Update the status in localStorage
       if (profileData) {
@@ -126,24 +132,25 @@ const Home: NextPage = () => {
     }
 
     let proofData: ProofData | null = null;
-    let merkleRoot: Hex | null = null;
-    let isValid = false;
+    let merkleRootValue: Hex | null = null;
     let proof: Hex | null = null;
     try {
       setSubmittedAddress(address);
       setSignature(signature);
       const inputFields = await getInputFields(signature, messageHash, address)
       proofData = inputFields.proofData;
-      merkleRoot = inputFields.merkleRoot;
+      merkleRootValue = inputFields.merkleRoot;
+      setMerkleRoot(merkleRootValue);
       proof = toHex(proofData.proof);
 
-      isValid = await verifyProof(proof, proofData.publicInputs);
+      const isValidProof = await verifyProof(proof, proofData.publicInputs);
+      setIsValid(isValidProof);
 
-      if (isValid) {
+      if (isValidProof) {
         console.log("Proof verified successfully ✅");
 
         // Add the submitted address to the linked wallets if not already present
-        if (profileData && merkleRoot && proof) {
+        if (profileData && merkleRootValue && proof) {
           const isAddressLinked = profileData.linked_wallets.some(
             wallet => wallet.toLowerCase() === address.toLowerCase()
           );
@@ -155,7 +162,7 @@ const Home: NextPage = () => {
           const updatedProfileData: ProfileData = {
             ...profileData,
             linked_wallets: updatedLinkedWallets,
-            merkleRoot: merkleRoot,
+            merkleRoot: merkleRootValue,
             updated: false,
             proof: proof,
             publicInputs: proofData.publicInputs as Hex[]
@@ -280,7 +287,42 @@ const Home: NextPage = () => {
           <div className={styles.card} style={{ width: '100%', maxWidth: '600px', marginBottom: '2rem' }}>
             <h2>Wallet Already Linked</h2>
             <p>This wallet is already linked to your profile. Connect another wallet to link it with your profile.</p>
+
+            {signature && isValid && (
+              <div className={styles.successMessage}>
+                <p>✅ Address linked successfully</p>
+                {signature && (
+                  <p className={styles.signatureInfo}>
+                    Signature verified: <span style={{ fontSize: '0.8em', wordBreak: 'break-all' }}>{signature}</span>
+                  </p>
+                )}
+                {merkleRoot && (
+                  <p className={styles.merkleRootInfo}>
+                    Merkle root stored locally. Update it on-chain to complete the process.
+                  </p>
+                )}
+              </div>
+            )}
+
+            {transactionHash && (
+              <div className={styles.transactionInfo}>
+                <p>✅ Merkle root updated on-chain successfully</p>
+                <p>
+                  <a
+                    href={`${BLOCK_EXPLORER_URL}/tx/${transactionHash}`}
+                    target="_blank"
+                    style={{ textDecoration: 'none', color: 'blue' }}
+                    rel="noopener noreferrer"
+                    className={styles.blockExplorerLink}
+                  >
+                    View transaction
+                  </a>
+                </p>
+              </div>
+            )}
           </div>
+
+
         ) : (
           <div className={styles.card} style={{ width: '100%', maxWidth: '600px', marginBottom: '2rem' }}>
             <h2>Link Your Wallet Address</h2>
@@ -292,14 +334,35 @@ const Home: NextPage = () => {
               isLoading={loading}
             />
 
-            {signature && (
+            {signature && isValid && (
               <div className={styles.successMessage}>
-                <p>✅ Address linked successfully: <span style={{ fontWeight: 'bold' }}>{submittedAddress}</span></p>
+                <p>✅ Address linked successfully</p>
                 {signature && (
                   <p className={styles.signatureInfo}>
                     Signature verified: <span style={{ fontSize: '0.8em', wordBreak: 'break-all' }}>{signature}</span>
                   </p>
                 )}
+                {merkleRoot && (
+                  <p className={styles.merkleRootInfo}>
+                    Merkle root stored locally. Update it on-chain to complete the process.
+                  </p>
+                )}
+              </div>
+            )}
+
+            {transactionHash && (
+              <div className={styles.transactionInfo}>
+                <p>✅ Merkle root updated on-chain successfully</p>
+                <p>
+                  <a
+                    href={`${BLOCK_EXPLORER_URL}/tx/${transactionHash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.blockExplorerLink}
+                  >
+                    View transaction on block explorer
+                  </a>
+                </p>
               </div>
             )}
           </div>
