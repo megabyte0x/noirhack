@@ -1,46 +1,10 @@
 # TruScore
 
-## To Do
+## Demo Video
 
-### Circuit
+Click on the image below to watch a demonstration of TruScore in action:
 
-- [ ] Implement the Merkle tree inclusion proof.
-- [ ] Implement ECDSA signature verification using `(r, s)` and `(public_key_x, public_key_y)` inputs.
-- [ ] Compute `commitment = PoseidonHash(address || nullifier)` inside the circuit.
-- [ ] Compare recomputed Merkle root with the provided root (assert inclusion).
-
-### Smart Contract
-
-- [ ] Verifier contract to verify ZK proof.
-- [ ] NFT contract for minting the reputation badge.
-- [ ] Merkle tree contract to store and update the Merkle root for each profile.
-
-### Backend (Optional / Light)
-
-- [ ] API to fetch the score from [OnChainScore API](https://onchainscore.xyz/api).
-- [ ] (Optional) Helper endpoint to assist client with score aggregation if needed.
-
-### Frontend
-
-- [ ] Add a button to connect the mint wallet (public wallet).
-- [ ] Add private wallet addresses into the Merkle tree (with nullifier generation).
-- [ ] Recover public key `(x, y)` off-chain from signature using Viem / ethers / noble-secp256k1.
-- [ ] Store the `nullifier` and linked wallet addresses securely in local storage.
-- [ ] Generate the ZK proof using `noirjs`, passing:
-  - `signature (r, s)`
-  - `public_key (x, y)`
-  - `nullifier`
-  - `address`
-  - `sibling_path`
-  - `path_indices`
-- [ ] Verify the proof on-chain via the verifier contract.
-- [ ] Mint the NFT after successful proof verification.
-
-## Design Decisions
-
-- ✅ Public key recovery will be done off-chain.
-- ✅ Signature verification and Merkle inclusion will both be proven inside the ZK circuit.
-- ✅ No wallet switching required during proof generation if public mint wallet is included in the Merkle tree.
+[![TruScore Demo](./assets/3.png)](https://youtu.be/iBtVi5kTDnE)
 
 ## Overview
 
